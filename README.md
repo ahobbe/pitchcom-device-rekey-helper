@@ -1,12 +1,15 @@
 # PitchCom Device Rekey Helper
-A JavaScript bookmarklet to assist in rekeying PitchCom receivers (PitchBands, PitchLogs, PitchCaps) and transmitters (PitchRemotes) using the [Rekey Your Device](https://support.pitchcom.com/pitchkey.html) web tool on PitchCom's website.
+A JavaScript bookmarklet that assists in rekeying PitchCom receivers (PitchBands, PitchLogs, PitchCaps) and transmitters (PitchRemotes) using [PitchCom's Rekey Your Device web tool](https://support.pitchcom.com/pitchkey.html).
+
+> [!IMPORTANT]
+> This is an independent tool that is **not affiliated with or endorsed by PitchCom. Use at your own risk.**
 
 ## What this does
-PitchCom's site does not allow users to view, save, export, or import generated encryption keys. These keys are permanently lost once the site's browser tab is closed. To add or replace a device, a new key must be generated, forcing teams to manually rekey and retest all of their units, not just the newly added one(s).
+PitchCom's website does not allow users to view, save, export, or import generated encryption keys. These keys are permanently lost once the site's browser tab is closed. To add or replace a device, a new key must be generated, forcing teams to manually rekey and retest all of their units, not just the newly added one(s).
 
 ![The original PitchCom Rekey Your Device interface.](/original.png)
 
-This bookmarklet adds functionality directly into the original PitchCom interface, allowing users to:
+This bookmarklet adds functionality directly into the original PitchCom interface that allows users to:
 - View full encryption keys, not just KeyIDs.
 - Copy/export generated keys to the clipboard so that they can be saved and reused later.
 - Paste/import keys back into the website, making it possible to add new devices without modifying existing ones.
@@ -34,5 +37,7 @@ To activate the bookmarklet, click on the bookmark while on the Rekey Your Devic
 
 ## Other
 - Tested on PitchRemote, PitchBand, PitchCap, and PitchLog devices running firmware version 5.17.
-- If a staff member who keyed PitchCom devices leaves, all devices should be reprogrammed with a new key.
 - JavaScript was minified using [Code Beautify](https://codebeautify.org/minify-js).
+
+> [!CAUTION]
+> If a staff member who keyed PitchCom devices leaves, all devices should be reprogrammed with a new key.
