@@ -1,8 +1,8 @@
-// REDONE LAYOUT
+// LAYOUT
 function addNewLine(previousLine) {
   const line = document.createElement("div");
   line.className = "d-flex gap-2 flex-wrap" // Same as original
-  line.style = "padding-top: 1rem";
+  line.style.paddingTop = "1rem";
   previousLine.insertAdjacentElement("afterend", line);
 
   return line;
@@ -38,19 +38,29 @@ line3.append(shortKeyDisplay);
 shortKeyDisplay.removeAttribute("type");
 
 // Make it shorter
-shortKeyDisplay.style = "max-width:64px";
+shortKeyDisplay.style.maxWidth = "64px";
 
-// Add a full key field
-const fullKeyDisplayText = `<input id="fullKey" class="form-control" style="max-width:320px">`;
-line3.insertAdjacentHTML("beforeend", fullKeyDisplayText);
+// Add a field for the full key
+const fullKeyDisplay = document.createElement("input");
+fullKeyDisplay.id = "fullKey";
+fullKeyDisplay.className = "form-control";
+fullKeyDisplay.style.maxWidth = "320px";
 
-// Add a "Load Key" button
-const loadKeyButton = `<button id="bKeyLoad" class="btn btn-primary">Load Key</button>`;
-line3.insertAdjacentHTML("beforeend", loadKeyButton);
+function createButton(id, text) {
+  const button = document.createElement("button");
+  button.id = id;
+  button.className = "btn btn-primary";
+  button.textContent = text;
+  button.disabled = true;
 
-// Add a "Copy Key" button
-const copyKeyButton = `<button id="bKeyCopy" class="btn btn-primary" disabled>Copy Key</button>`;
-line3.insertAdjacentHTML("beforeend", copyKeyButton);
+  return button;
+}
+
+// Add "Load Key" and "Copy Key" buttons
+const loadButton = createButton("bKeyLoad", "Load Key");
+const copyButton = createButton("bKeyCopy", "Copy Key");
+
+line3.append(fullKeyDisplay, loadButton, copyButton);
 
 // LINE 4
 // Move "Write" button to its own line
@@ -59,20 +69,8 @@ line4.append(writeButton);
 // Change text from "Generate" to "Generate Key"
 writeButton.textContent = "Write Key";
 
-// NEW FUNCTIONALITY
-// Current key
-let fullKey;
-let fullKeyHex;
-
-// Full key field
-const fullKeyDisplay = document.getElementById("fullKey");
-
-// Output
+// OUTPUT
 const output = document.getElementById("output");
-
-// New buttons
-const loadButton = document.getElementById("bKeyLoad");
-const copyButton = document.getElementById("bKeyCopy");
 
 function addMessage(message, color) {
   // Create a new span element
@@ -80,12 +78,14 @@ function addMessage(message, color) {
   outputMessage.textContent = message;
   outputMessage.style.color = color;
 
-  // Append the span to the output element
-  output.appendChild(outputMessage);
-
-  // Add a line break after each span
-  output.appendChild(document.createElement("br"));
+  // Append the span and a line break to the output element
+  output.append(outputMessage, document.createElement("br"));
 }
+
+// NEW FUNCTIONALITY
+// Current key
+let fullKey;
+let fullKeyHex;
 
 function generateKey() {
   // Full key
@@ -103,7 +103,8 @@ function generateKey() {
   // Add message
   addMessage(`Key generated, KeyID: ${shortKeyDisplay.value}`, "green");
 
-  // Enable copy button
+  // Enable buttons
+  loadButton.disabled = false;
   copyButton.disabled = false;
 }
 
@@ -115,8 +116,13 @@ function isValidKey() {
   if (!isHex) {
     return false;
   }
-
+  
   return true;
+}
+
+function toggleButtons() {
+  loadButton.disabled = fullKeyDisplay.value.trim() == "";
+  copyButton.disabled = !isValidKey();
 }
 
 function loadKey() {
@@ -126,7 +132,9 @@ function loadKey() {
   }
 
   // Set new key
-  fullKey = handler.key = new Uint8Array(fullKeyDisplay.value.match(/.{1,2}/g).map(b => parseInt(b, 16)));
+  fullKeyDisplay.value = fullKeyDisplay.value.toUpperCase();
+  fullKeyHex = fullKeyDisplay.value;
+  fullKey = handler.key = new Uint8Array(fullKeyHex.match(/.{1,2}/g).map(b => parseInt(b, 16)));
 
   // Redo KeyID
   keyID = handler.crc8Java(fullKey);
@@ -135,6 +143,9 @@ function loadKey() {
   shortKeyDisplay.value = keyID.toString(16)
     .padStart(2, "0")
     .toUpperCase()
+
+  // Allow key to be copied
+  copyButton.disabled = false;
 
   addMessage(`Key loaded, KeyID: ${shortKeyDisplay.value}`, "green");
 }
@@ -146,7 +157,7 @@ async function copyKey() {
   }
 
   try {
-    await navigator.clipboard.writeText(fullKeyHex);
+    await navigator.clipboard.writeText(fullKeyDisplay.value.trim().toUpperCase());
     addMessage(`Key copied to clipboard, KeyID: ${shortKeyDisplay.value}`, "green");
   }
 
@@ -156,10 +167,7 @@ async function copyKey() {
 }
 
 // LISTENERS
-// Update full key field
-generateButton.addEventListener("click", () => generateKey());
-loadButton.addEventListener("click", () => loadKey());
-copyButton.addEventListener("click", () => copyKey());
-
-// For testing without actual device connected
-// generateButton.disabled = false;
+generateButton.addEventListener("click", generateKey); // Update full key field
+fullKeyDisplay.addEventListener("input", toggleButtons);
+loadButton.addEventListener("click", loadKey);
+copyButton.addEventListener("click", copyKey);
